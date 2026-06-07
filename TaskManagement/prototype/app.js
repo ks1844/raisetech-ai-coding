@@ -5,6 +5,7 @@ let editingCardId = null;
 let editingCardColumnId = null;
 let dragState = null; // { cardId, fromColumnId, element, placeholder }
 let confirmCallback = null;
+const columnSortModes = {}; // { [columnId]: 'priority' | 'dueDate' | null }
 
 const STORAGE_KEY = 'boards';
 
@@ -134,14 +135,38 @@ function renderBoardDetail() {
   });
 }
 
+function getSortedCards(cards, sortMode) {
+  const priorityOrder = { high: 0, medium: 1, low: 2 };
+  if (sortMode === 'priority') {
+    return [...cards].sort((a, b) =>
+      (priorityOrder[a.priority || 'medium']) - (priorityOrder[b.priority || 'medium'])
+    );
+  }
+  if (sortMode === 'dueDate') {
+    return [...cards].sort((a, b) => {
+      if (!a.dueDate && !b.dueDate) return 0;
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
+      return a.dueDate.localeCompare(b.dueDate);
+    });
+  }
+  return cards;
+}
+
 function createColumnElement(col) {
   const colEl = document.createElement('div');
   colEl.className = 'column';
   colEl.dataset.columnId = col.id;
 
+  const sortMode = columnSortModes[col.id] || null;
+
   colEl.innerHTML = `
     <div class="column-header">
       <span class="column-title" title="クリックで編集">${esc(col.title)}</span>
+      <div class="column-sort-btns">
+        <button class="btn-sort ${sortMode === 'priority' ? 'active' : ''}" data-sort="priority" title="優先度順">↑ 優先度</button>
+        <button class="btn-sort ${sortMode === 'dueDate' ? 'active' : ''}" data-sort="dueDate" title="期限順">📅 期限</button>
+      </div>
       <button class="btn-icon btn-delete-col" title="削除">✕</button>
     </div>
     <div class="column-cards"></div>
@@ -171,9 +196,18 @@ function createColumnElement(col) {
     });
   });
 
+  // ソートボタン
+  colEl.querySelectorAll('.btn-sort').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sort = btn.dataset.sort;
+      columnSortModes[col.id] = columnSortModes[col.id] === sort ? null : sort;
+      renderBoardDetail();
+    });
+  });
+
   // カード一覧
   const cardsEl = colEl.querySelector('.column-cards');
-  col.cards.forEach(card => cardsEl.appendChild(createCardElement(card, col.id)));
+  getSortedCards(col.cards, sortMode).forEach(card => cardsEl.appendChild(createCardElement(card, col.id)));
 
   // D&D ターゲット
   setupColumnDropTarget(cardsEl, col.id);
@@ -222,8 +256,12 @@ function createCardElement(card, columnId) {
     dueHtml = `<div class="card-due ${overdue ? 'overdue' : ''}">📅 ${card.dueDate}</div>`;
   }
 
+  const priorityLabel = { high: '高', medium: '中', low: '低' };
+  const p = card.priority || 'medium';
+  const priorityHtml = `<span class="card-priority priority-${p}">${priorityLabel[p]}</span>`;
+
   el.innerHTML = `
-    <div class="card-title">${esc(card.title)}</div>
+    <div class="card-header-row">${priorityHtml}<div class="card-title">${esc(card.title)}</div></div>
     ${dueHtml}
     <button class="card-delete" title="削除">✕</button>
   `;
@@ -371,6 +409,7 @@ function openCardModal(columnId, cardId) {
   editingCardColumnId = columnId;
 
   $('card-title-input').value = card.title;
+  $('card-priority-input').value = card.priority || 'medium';
   $('card-desc-input').value = card.description || '';
   $('card-due-input').value = card.dueDate || '';
   $('card-title-error').classList.add('hidden');
@@ -399,6 +438,7 @@ function saveCard() {
   const card = col.cards.find(c => c.id === editingCardId);
 
   card.title = title;
+  card.priority = $('card-priority-input').value;
   card.description = $('card-desc-input').value.trim();
   card.dueDate = $('card-due-input').value || null;
 
@@ -513,7 +553,7 @@ $('card-modal').addEventListener('click', e => {
   if (e.target === $('card-modal')) closeCardModal();
 });
 $('card-title-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') saveCard();
+  if (e.key === 'Enter' && !e.isComposing) saveCard();
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
@@ -546,8 +586,8 @@ if (boards.length === 0) {
           id: 'col-1',
           title: 'ToDo',
           cards: [
-            { id: 'card-1', title: 'Next.js の勉強', description: 'App Router の基礎から始める', dueDate: '2026-06-30' },
-            { id: 'card-2', title: 'TypeScript 型定義の復習', description: '', dueDate: null },
+            { id: 'card-1', title: 'Next.js の勉強', description: 'App Router の基礎から始める', dueDate: '2026-06-30', priority: 'high' },
+            { id: 'card-2', title: 'TypeScript 型定義の復習', description: '', dueDate: null, priority: 'medium' },
           ]
         },
         {

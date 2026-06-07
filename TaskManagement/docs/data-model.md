@@ -21,6 +21,7 @@ localStorage
                         └── Card
                             ├── id
                             ├── title
+                            ├── priority
                             ├── description
                             └── dueDate
 ```
@@ -51,6 +52,7 @@ localStorage
 |------------|-----|------|------|
 | id | string | ○ | カードを一意に識別するID（例：`card-1`） |
 | title | string | ○ | カードのタイトル（例：「Next.jsの勉強」） |
+| priority | string | ○ | 優先度。`"high"` / `"medium"` / `"low"` のいずれか。デフォルトは `"medium"` |
 | description | string | - | カードの説明・メモ。未入力の場合は空文字 `""` |
 | dueDate | string | - | 期限日。`YYYY-MM-DD` 形式（例：`"2026-06-30"`）。未設定の場合は `null` |
 
@@ -71,6 +73,7 @@ localStorage
           {
             "id": "card-1",
             "title": "Next.jsの勉強",
+            "priority": "high",
             "description": "App Routerの基礎から始める",
             "dueDate": "2026-06-30"
           }
@@ -112,6 +115,7 @@ erDiagram
     Card {
         string id PK
         string title
+        string priority
         string description
         date due_date
         int position

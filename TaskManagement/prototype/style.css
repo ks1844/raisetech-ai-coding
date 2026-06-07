@@ -212,7 +212,28 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px 8px;
+  gap: 4px;
+  flex-wrap: wrap;
 }
+
+/* ===== Column Sort Buttons ===== */
+.column-sort-btns {
+  display: flex;
+  gap: 4px;
+}
+.btn-sort {
+  background: rgba(0,0,0,0.06);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  padding: 3px 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-sort:hover { background: rgba(0,0,0,0.12); color: var(--text); }
+.btn-sort.active { background: var(--primary); color: #fff; }
 .column-title {
   font-size: 14px;
   font-weight: 700;
@@ -246,7 +267,19 @@ body {
   transition: box-shadow 0.15s;
 }
 .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-.card-title { font-size: 13px; font-weight: 500; word-break: break-word; }
+.card-header-row { display: flex; align-items: flex-start; gap: 6px; }
+.card-title { font-size: 13px; font-weight: 500; word-break: break-word; flex: 1; }
+.card-priority {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.priority-high { background: #fed7d7; color: #c53030; }
+.priority-medium { background: #fefcbf; color: #744210; }
+.priority-low { background: #c6f6d5; color: #276749; }
 .card-due {
   font-size: 11px;
   color: var(--text-muted);
