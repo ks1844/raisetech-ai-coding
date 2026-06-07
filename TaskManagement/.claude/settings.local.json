@@ -1,9 +1,12 @@
 {
   "permissions": {
+    "defaultMode": "bypassPermissions",
     "allow": [
       "Bash(git add *)",
       "Read(//Users/kenshiroshimizu/**)",
-      "Read(//Users/kenshiroshimizu/.config/git/**)"
+      "Read(//Users/kenshiroshimizu/.config/git/**)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
     ]
   }
 }
