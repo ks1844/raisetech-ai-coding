@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>タスク管理アプリ - プロトタイプ</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ========== ボード一覧画面 ========== -->
+  <div id="board-list-view" class="view active">
+    <header class="app-header">
+      <h1 class="app-title">タスク管理</h1>
+      <button id="btn-create-board" class="btn btn-primary">＋ ボードを作成</button>
+    </header>
+
+    <!-- ボード作成フォーム（初期非表示） -->
+    <div id="create-board-form" class="create-form hidden">
+      <input id="new-board-title" type="text" class="input" placeholder="ボード名を入力" maxlength="50" />
+      <button id="btn-submit-board" class="btn btn-primary">作成</button>
+      <button id="btn-cancel-board" class="btn btn-ghost">キャンセル</button>
+    </div>
+
+    <main class="board-grid" id="board-grid">
+      <!-- ボードカードがここに動的挿入される -->
+    </main>
+
+    <div id="empty-boards" class="empty-state hidden">
+      <p>ボードがありません。作成してください。</p>
+    </div>
+  </div>
+
+  <!-- ========== ボード詳細画面 ========== -->
+  <div id="board-detail-view" class="view hidden">
+    <header class="board-header">
+      <button id="btn-back" class="btn btn-ghost back-btn">← 一覧へ戻る</button>
+      <h2 id="board-detail-title" class="board-title" title="クリックで編集"></h2>
+      <input id="board-title-input" type="text" class="input title-inline-input hidden" maxlength="50" />
+    </header>
+    <div class="columns-wrapper" id="columns-wrapper">
+      <!-- カラムがここに動的挿入される -->
+      <div class="add-column-area">
+        <button id="btn-add-column" class="btn btn-add-column">＋ カラムを追加</button>
+        <div id="add-column-form" class="create-form hidden">
+          <input id="new-column-title" type="text" class="input" placeholder="カラム名" maxlength="30" />
+          <button id="btn-submit-column" class="btn btn-primary">追加</button>
+          <button id="btn-cancel-column" class="btn btn-ghost">キャンセル</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== カード編集モーダル ========== -->
+  <div id="card-modal" class="modal-overlay hidden">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-label">
+      <div class="modal-header">
+        <h3 id="modal-title-label">カードを編集</h3>
+        <button class="btn-close" id="btn-close-modal" aria-label="閉じる">✕</button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label" for="card-title-input">タイトル <span class="required">*</span></label>
+        <input id="card-title-input" type="text" class="input" placeholder="タイトルを入力" maxlength="100" />
+        <span id="card-title-error" class="error-msg hidden">タイトルは必須です</span>
+
+        <label class="form-label" for="card-desc-input">説明</label>
+        <textarea id="card-desc-input" class="input textarea" placeholder="説明を入力（任意）" rows="4"></textarea>
+
+        <label class="form-label" for="card-due-input">期限日</label>
+        <input id="card-due-input" type="date" class="input" />
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancel-modal" class="btn btn-ghost">キャンセル</button>
+        <button id="btn-save-modal" class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 削除確認ダイアログ -->
+  <div id="confirm-dialog" class="modal-overlay hidden">
+    <div class="modal modal-sm">
+      <p id="confirm-message" class="confirm-message"></p>
+      <div class="modal-footer">
+        <button id="btn-confirm-cancel" class="btn btn-ghost">キャンセル</button>
+        <button id="btn-confirm-ok" class="btn btn-danger">削除</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
