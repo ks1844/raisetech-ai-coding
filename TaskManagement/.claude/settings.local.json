@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Read(//Users/kenshiroshimizu/**)",
+      "Read(//Users/kenshiroshimizu/.config/git/**)"
+    ]
+  }
+}
