@@ -1,71 +1,88 @@
-# GitHub運用ルール
+# Claude Code 設定・ガイドライン
 
-Claude Codeはこのプロジェクトで作業する際、以下のルールを厳密に守ること。
+## ポート管理規則
 
-## ブランチ構成
+**スキル参照**: `/port-management`
 
-このプロジェクトは `feature` → `dev` → `main` の2段階フローで運用する。
+詳細なポート管理ルール（8080/5173/5432固定、競合時の対応手順、別ポート起動が禁止な理由）は、独立したスキル `.claude/skills/port-management/SKILL.md` に一元化されています。
 
-| ブランチ | 役割 |
-|---------|------|
-| `main` | リリース相当。`dev` からのPRのみを受け入れる |
-| `dev` | 開発の統合先。各 `feature` ブランチはここへPRを出す |
-| `feature/*` | 個別の作業ブランチ。`dev` から切る |
+サーバー起動時は上記スキルを参照するか、以下のコマンドで呼び出してください:
 
-## 基本の作業フロー
+```bash
+# スキルの詳細を確認
+claude /port-management
 
-規模の大きい作業は、必ずこの順序で進める。途中の手順を飛ばさない。
+# または直接読み込み
+cat .claude/skills/port-management/SKILL.md
+```
 
-1. **Issueを作成する** — 作業内容・背景・やることを書く
-2. **`dev`を最新にする** — `git switch dev && git pull`
-3. **ブランチを切る** — `git switch -c feature/<issue番号>-<簡易説明>`
-4. **実装・コミットする** — コミットメッセージは日本語で書く
-5. **pushして`dev`宛のPRを作成する** — 本文に `Closes #<issue番号>` を含める
-6. **セルフチェック後にマージする** — マージ後はブランチを削除する
+**クイックリファレンス**:
+- バックエンド: ポート 8080、競合時は `lsof -i :8080` → `kill -9` → 再起動
+- フロントエンド: ポート 5173、競合時は `lsof -i :5173` → `kill -9` → 再起動
+- DB: ポート 5432、競合時は `docker stop taskmanagement-db` → `docker-compose up -d`
+- 自動化: `.claude/settings.json` フックで起動時にポート確認・クリア
 
-`dev` の内容をリリースする際は、別途 `dev` → `main` のPRを作成する。
+---
 
-## Issue登録
+## 言語・コミュニケーション
 
-- 機能追加・バグ修正など、規模の大きい作業を始める前には必ずGitHub Issueを作成する
-- タイポ修正など軽微な変更にはIssueは不要
-- 迷った場合はIssueを作成する側に倒す
-- Issueには「背景」と「やること（チェックリスト）」を含める
+- 返答・質問・計画書・Issue/PR: すべて **日本語**
+- git commit メッセージ: **日本語**
+- コード内コメント: 最小限（WHY が非自明な場合のみ）、英語可
 
-## ブランチ運用
+---
 
-- `main`・`dev` への直接コミット・直接pushは**禁止**
-- 作業は必ず新しいブランチを切ってから行う
-- ブランチを切る前に `dev` を最新化する
-- ブランチ名は `feature/issue番号-簡易説明` の形式にする
-  - 例: `feature/12-add-login-api`
-  - Issueに紐付かない軽微な変更は `feature/簡易説明` でもよい
-- 現在のブランチが `main` や `dev` のまま編集を始めてしまっていないか、作業前に必ず確認する
+## Git ワークフロー
 
-## コミット
+- ブランチ: `feature/番号-機能名` で作業中
+- コミット: 新規コミットを作成（amend しない）
+- main へのpush: 必ず確認してから実行
+- 強制푸시(--force): 使用禁止
 
-- コミットメッセージは日本語で書く
-- 1コミット1目的とし、無関係な変更を混ぜない
-- ビルド成果物（`build/` など）や個人設定ファイルはコミットしない
+---
 
-## Pull Request
+## テスト・動作確認
 
-- `dev`・`main`へのマージは必ずPull Requestを経由する
-- PRテンプレート（`.github/pull_request_template.md`）に従って記述する
-- `feature` ブランチのPRは、マージ先が `dev` になっているか確認する（GitHubの既定は `main` なので注意）
-- 本文に `Closes #<issue番号>` を書き、マージ時にIssueが自動クローズされるようにする
-- レビュー承認は必須ではないが、PRを作成しCIやセルフチェックを経てからマージする
-- PRについたレビューコメントは、マージ前にすべて解決（Resolve）する
-- `git push --force` を`main`・`dev`に対して行わない
+サーバー起動後、必ず以下の動作確認を実施:
 
-## GitHub側の保護設定
+1. **バックエンドヘルスチェック**:
+   ```bash
+   curl http://localhost:8080/health
+   # 期待値: {"status":"ok"}
+   ```
 
-`main` ブランチには以下の保護が設定されている。これらを一時的に外して直接pushする、といった回避は行わない。
+2. **フロントエンドページロード**:
+   ```bash
+   curl http://localhost:5173/ | grep -o '<title>.*</title>'
+   ```
 
-| 設定 | 状態 |
-|------|------|
-| Pull Request経由のマージ必須 | 有効 |
-| force push禁止 | 有効 |
-| ブランチ削除禁止 | 有効 |
-| 管理者にも適用 | 有効 |
-| 会話（レビューコメント）解決必須 | 有効 |
+3. **API 動作確認**:
+   ```bash
+   curl http://localhost:8080/api/boards
+   ```
+
+4. **ブラウザ動作確認**:
+   - http://localhost:5173 を開く
+   - ボード一覧 → ボード詳細 → 検索機能 の一連の流れを確認
+
+---
+
+## プロジェクト構成
+
+```
+TaskManagement/
+├── backend/              # Spring Boot (Java + PostgreSQL)
+│   ├── src/main/java/
+│   ├── build.gradle
+│   ├── application.yml   (server.port: 8080)
+│   └── docker-compose.yml (PostgreSQL)
+├── frontend/             # Vite + React + TypeScript
+│   ├── src/
+│   ├── package.json
+│   ├── vite.config.ts    (port: 5173, proxy: /api → localhost:8080)
+│   └── tailwind.config.js
+└── docs/                 # 仕様書
+    ├── requirements.md
+    ├── screen-design.md
+    └── tech-stack.md
+```
