@@ -16,7 +16,7 @@ export const BoardListPage = ({ onSelectBoard }: BoardListPageProps) => {
       try {
         const data = await fetchBoards();
         setBoards(data);
-      } catch (err) {
+      } catch {
         setError('ボード一覧の読み込みに失敗しました');
       } finally {
         setLoading(false);

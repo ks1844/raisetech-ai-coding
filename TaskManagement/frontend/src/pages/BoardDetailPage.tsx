@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { BoardDetailResponse, CardResponse, ColumnWithCards, SearchCardsParams } from '../types';
+import type { BoardDetailResponse, ColumnWithCards, SearchCardsParams } from '../types';
 import { fetchBoardDetail, searchCards } from '../api/client';
 import { SearchBar } from '../components/SearchBar';
 import { CardItem } from '../components/CardItem';
@@ -21,7 +21,7 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
         const data = await fetchBoardDetail(boardId);
         setBoard(data);
         setDisplayColumns(data.columns);
-      } catch (err) {
+      } catch {
         setError('ボード詳細の読み込みに失敗しました');
       } finally {
         setLoading(false);
@@ -44,7 +44,7 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
       }));
 
       setDisplayColumns(updatedColumns);
-    } catch (err) {
+    } catch {
       setError('検索に失敗しました');
     }
   };
@@ -54,7 +54,7 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
     try {
       const data = await fetchBoardDetail(boardId);
       setDisplayColumns(data.columns);
-    } catch (err) {
+    } catch {
       setError('リセットに失敗しました');
     }
   };
