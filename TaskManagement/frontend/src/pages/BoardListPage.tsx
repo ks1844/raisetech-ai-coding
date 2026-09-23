@@ -30,26 +30,31 @@ export const BoardListPage = ({ onSelectBoard }: BoardListPageProps) => {
   if (error) return <div className="p-4 text-red-600">{error}</div>;
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">ボード一覧</h1>
-      {boards.length === 0 ? (
-        <p className="text-gray-600">ボードがありません。</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {boards.map((board) => (
-            <div
-              key={board.id}
-              onClick={() => onSelectBoard(board.id)}
-              className="p-4 border border-gray-300 rounded cursor-pointer hover:shadow-lg hover:bg-gray-50 transition"
-            >
-              <h2 className="text-lg font-semibold">{board.title}</h2>
-              <p className="text-xs text-gray-500 mt-2">
-                作成: {new Date(board.createdAt).toLocaleDateString('ja-JP')}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="min-h-screen bg-gray-100">
+      <div className="bg-slate-700 text-white px-6 py-4 shadow">
+        <h1 className="text-2xl font-bold">ボード一覧</h1>
+      </div>
+
+      <div className="p-6">
+        {boards.length === 0 ? (
+          <p className="text-gray-600">ボードがありません。</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {boards.map((board) => (
+              <div
+                key={board.id}
+                onClick={() => onSelectBoard(board.id)}
+                className="p-4 bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg cursor-pointer transition"
+              >
+                <h2 className="text-lg font-semibold text-gray-800">{board.title}</h2>
+                <p className="text-xs text-gray-500 mt-2">
+                  作成: {new Date(board.createdAt).toLocaleDateString('ja-JP')}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

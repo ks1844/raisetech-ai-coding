@@ -64,38 +64,51 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
   if (!board) return <div className="p-4">ボードが見つかりません</div>;
 
   return (
-    <div className="p-4">
-      <button
-        onClick={onBack}
-        className="mb-4 px-3 py-1 bg-gray-300 hover:bg-gray-400 rounded text-sm"
-      >
-        一覧へ戻る
-      </button>
-      <h1 className="text-2xl font-bold mb-4">{board.title}</h1>
+    <div className="min-h-screen bg-gray-100">
+      <div className="bg-slate-700 text-white px-6 py-4 shadow">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">{board.title}</h1>
+          <button
+            onClick={onBack}
+            className="px-3 py-1 bg-slate-600 hover:bg-slate-500 rounded text-sm transition"
+          >
+            一覧へ戻る
+          </button>
+        </div>
+      </div>
 
-      <SearchBar onSearch={handleSearch} />
-      <button
-        onClick={handleReset}
-        className="mb-4 px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm"
-      >
-        検索をリセット
-      </button>
+      <div className="p-6">
+        <div className="mb-4 bg-white rounded p-4 shadow-sm">
+          <SearchBar onSearch={handleSearch} />
+          <button
+            onClick={handleReset}
+            className="mt-3 px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm"
+          >
+            検索をリセット
+          </button>
+        </div>
 
-      <div className="flex overflow-x-auto gap-4">
-        {displayColumns.map((column) => (
-          <div key={column.id} className="flex-shrink-0 w-80 bg-gray-50 p-3 rounded border border-gray-300">
-            <h2 className="font-bold text-lg mb-3">{column.title}</h2>
-            <div className="space-y-2">
-              {column.cards.length === 0 ? (
-                <p className="text-gray-500 text-sm">カードはありません</p>
-              ) : (
-                column.cards.map((card) => (
-                  <CardItem key={card.id} card={card} />
-                ))
-              )}
+        <div className="flex overflow-x-auto gap-4 pb-4">
+          {displayColumns.map((column) => (
+            <div key={column.id} className="flex-shrink-0 w-80 bg-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-bold text-lg text-gray-800">{column.title}</h2>
+                <span className="bg-gray-400 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-semibold">
+                  {column.cards.length}
+                </span>
+              </div>
+              <div className="space-y-3">
+                {column.cards.length === 0 ? (
+                  <p className="text-gray-500 text-sm">カードはありません</p>
+                ) : (
+                  column.cards.map((card) => (
+                    <CardItem key={card.id} card={card} />
+                  ))
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
