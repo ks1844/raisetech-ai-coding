@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BoardDetailResponse, CardResponse, ColumnWithCards, SearchCardsParams } from '../types';
+import type { BoardDetailResponse, CardResponse, ColumnWithCards, SearchCardsParams } from '../types';
 import { fetchBoardDetail, searchCards } from '../api/client';
 import { SearchBar } from '../components/SearchBar';
 import { CardItem } from '../components/CardItem';

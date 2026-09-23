@@ -1,4 +1,4 @@
-import { CardResponse } from '../types';
+import type { CardResponse } from '../types';
 
 interface CardItemProps {
   card: CardResponse;

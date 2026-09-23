@@ -1,4 +1,4 @@
-import { BoardDetailResponse, BoardResponse, CardResponse, SearchCardsParams } from '../types';
+import type { BoardDetailResponse, BoardResponse, CardResponse, SearchCardsParams } from '../types';
 
 const API_BASE_URL = '/api';
 

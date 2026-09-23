@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SearchCardsParams } from '../types';
+import type { SearchCardsParams } from '../types';
 
 interface SearchBarProps {
   onSearch: (params: SearchCardsParams) => void;

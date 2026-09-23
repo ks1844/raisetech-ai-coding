@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BoardResponse } from '../types';
+import type { BoardResponse } from '../types';
 import { fetchBoards } from '../api/client';
 
 interface BoardListPageProps {
