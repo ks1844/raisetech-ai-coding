@@ -12,6 +12,15 @@ dist
 dist-ssr
 *.local
 
+# Build artifacts & bytecode
+*.byte
+*.o
+*.cm*
+*.cma
+*.cmx
+*.cmxa
+*.cmxs
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -22,3 +31,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# OS
+Thumbs.db
