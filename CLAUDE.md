@@ -58,7 +58,7 @@ cat .claude/skills/port-management/SKILL.md
 
 - **コミット**: 新規コミットを作成（amend しない）
 - **メッセージ**: 日本語で記述
-- **強制푸시**: `--force` 使用禁止
+- **強制プッシュ**: `--force` 使用禁止
 
 ---
 
