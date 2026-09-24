@@ -42,3 +42,19 @@ export interface SearchCardsParams {
   dueTo?: string;
   sort?: 'position' | 'priority' | 'dueDate';
 }
+
+export interface CardCreateRequest {
+  columnId: number;
+  title: string;
+  priority?: 'high' | 'medium' | 'low';
+  description?: string;
+  dueDate?: string | null;
+}
+
+export interface CardCreateRequest {
+  columnId: number;
+  title: string;
+  priority?: 'high' | 'medium' | 'low';
+  description?: string;
+  dueDate?: string | null;
+}
