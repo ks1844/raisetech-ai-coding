@@ -1,6 +1,6 @@
-import type { BoardDetailResponse, BoardResponse, CardResponse, SearchCardsParams } from '../types';
+import type { BoardDetailResponse, BoardResponse, CardResponse, CardCreateRequest, SearchCardsParams } from '../types';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://localhost:8080/api';
 
 export const fetchBoards = async (): Promise<BoardResponse[]> => {
   const response = await fetch(`${API_BASE_URL}/boards`);
@@ -27,5 +27,15 @@ export const searchCards = async (params: SearchCardsParams): Promise<CardRespon
   const url = `${API_BASE_URL}/cards?${queryParams.toString()}`;
   const response = await fetch(url);
   if (!response.ok) throw new Error('Failed to search cards');
+  return response.json();
+};
+
+export const createCard = async (data: CardCreateRequest): Promise<CardResponse> => {
+  const response = await fetch(`${API_BASE_URL}/cards`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error('Failed to create card');
   return response.json();
 };
