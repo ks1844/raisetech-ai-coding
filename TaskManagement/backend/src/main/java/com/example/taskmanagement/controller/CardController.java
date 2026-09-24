@@ -1,13 +1,12 @@
 package com.example.taskmanagement.controller;
 
+import com.example.taskmanagement.dto.CardCreateRequest;
 import com.example.taskmanagement.dto.CardResponse;
 import com.example.taskmanagement.dto.CardSearchCondition;
 import com.example.taskmanagement.service.CardService;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,6 +29,12 @@ public class CardController {
 			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueTo,
 			@RequestParam(required = false) String sort) {
 		return cardService.search(new CardSearchCondition(columnId, keyword, priority, dueFrom, dueTo, sort));
+	}
+
+	@PostMapping("/api/cards")
+	@ResponseStatus(HttpStatus.CREATED)
+	public CardResponse createCard(@RequestBody CardCreateRequest request) {
+		return cardService.create(request);
 	}
 
 	@GetMapping("/api/cards/{id}")
