@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { BoardDetailResponse, ColumnWithCards, SearchCardsParams } from '../types';
-import { fetchBoardDetail, searchCards } from '../api/client';
+import type { BoardDetailResponse, ColumnWithCards, SearchCardsParams, CardCreateRequest } from '../types';
+import { fetchBoardDetail, searchCards, createCard } from '../api/client';
 import { SearchBar } from '../components/SearchBar';
 import { CardItem } from '../components/CardItem';
 
@@ -14,6 +14,15 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
   const [displayColumns, setDisplayColumns] = useState<ColumnWithCards[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedColumnId, setSelectedColumnId] = useState<number | null>(null);
+  const [formData, setFormData] = useState<CardCreateRequest>({
+    columnId: 0,
+    title: '',
+    priority: 'medium',
+    description: '',
+    dueDate: null,
+  });
 
   useEffect(() => {
     const loadBoard = async () => {
@@ -56,6 +65,30 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
       setDisplayColumns(data.columns);
     } catch {
       setError('リセットに失敗しました');
+    }
+  };
+
+  const handleOpenCreateModal = (columnId: number) => {
+    setSelectedColumnId(columnId);
+    setFormData({ columnId, title: '', priority: 'medium', description: '', dueDate: null });
+    setShowCreateModal(true);
+  };
+
+  const handleCreateCard = async () => {
+    if (!formData.title.trim()) {
+      setError('タイトルは必須です');
+      return;
+    }
+
+    try {
+      await createCard(formData);
+      setShowCreateModal(false);
+      // ボード詳細を再取得して画面を更新
+      const data = await fetchBoardDetail(boardId);
+      setBoard(data);
+      setDisplayColumns(data.columns);
+    } catch {
+      setError('カード作成に失敗しました');
     }
   };
 
@@ -106,10 +139,81 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
                   ))
                 )}
               </div>
+              <button
+                onClick={() => handleOpenCreateModal(column.id)}
+                className="w-full mt-4 px-3 py-2 bg-gray-300 hover:bg-gray-400 rounded text-gray-700 text-sm font-medium transition"
+              >
+                + カードを追加
+              </button>
             </div>
           ))}
         </div>
       </div>
+
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
+            <h2 className="text-xl font-bold mb-4">カードを追加</h2>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">タイトル *</label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="タスク名"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">優先度</label>
+                <select
+                  value={formData.priority}
+                  onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="high">高</option>
+                  <option value="medium">中</option>
+                  <option value="low">低</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">説明</label>
+                <textarea
+                  value={formData.description || ''}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  placeholder="詳細..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">期限日</label>
+                <input
+                  type="date"
+                  value={formData.dueDate || ''}
+                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value || null })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded font-medium transition"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleCreateCard}
+                className="flex-1 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-medium transition"
+              >
+                作成
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
