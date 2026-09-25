@@ -51,9 +51,8 @@ export interface CardCreateRequest {
   dueDate?: string | null;
 }
 
-export interface CardCreateRequest {
-  columnId: number;
-  title: string;
+export interface CardUpdateRequest {
+  title?: string;
   priority?: 'high' | 'medium' | 'low';
   description?: string;
   dueDate?: string | null;

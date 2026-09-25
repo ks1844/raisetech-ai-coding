@@ -2,6 +2,7 @@ package com.example.taskmanagement.service;
 
 import com.example.taskmanagement.dto.CardCreateRequest;
 import com.example.taskmanagement.dto.CardResponse;
+import com.example.taskmanagement.dto.CardUpdateRequest;
 import com.example.taskmanagement.dto.CardSearchCondition;
 import com.example.taskmanagement.entity.Card;
 import com.example.taskmanagement.repository.CardRepository;
@@ -97,5 +98,30 @@ public class CardService {
 
 		Card saved = cardRepository.save(card);
 		return CardResponse.from(saved);
+	}
+
+	@Transactional(readOnly = false)
+	public CardResponse update(Long id, CardUpdateRequest request) {
+		Card card = cardRepository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "カードが見つかりません: id=" + id));
+
+		if (request.priority() != null && !PRIORITY_ORDER.containsKey(request.priority())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"priority は high / medium / low のいずれかを指定してください");
+		}
+
+		if (request.title() != null) {
+			card.setTitle(request.title());
+		}
+		if (request.priority() != null) {
+			card.setPriority(request.priority());
+		}
+		if (request.description() != null) {
+			card.setDescription(request.description());
+		}
+		card.setDueDate(request.dueDate());
+
+		Card updated = cardRepository.save(card);
+		return CardResponse.from(updated);
 	}
 }

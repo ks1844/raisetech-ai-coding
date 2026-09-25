@@ -3,11 +3,11 @@ package com.example.taskmanagement.dto;
 import java.time.LocalDate;
 
 public record CardCreateRequest(
-		Long columnId,
-		String title,
-		String priority,
-		String description,
-		LocalDate dueDate
+	Long columnId,
+	String title,
+	String priority,
+	String description,
+	LocalDate dueDate
 ) {
 	public CardCreateRequest {
 		if (columnId == null) {

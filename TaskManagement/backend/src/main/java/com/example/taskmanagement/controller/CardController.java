@@ -3,6 +3,7 @@ package com.example.taskmanagement.controller;
 import com.example.taskmanagement.dto.CardCreateRequest;
 import com.example.taskmanagement.dto.CardResponse;
 import com.example.taskmanagement.dto.CardSearchCondition;
+import com.example.taskmanagement.dto.CardUpdateRequest;
 import com.example.taskmanagement.service.CardService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -31,14 +32,19 @@ public class CardController {
 		return cardService.search(new CardSearchCondition(columnId, keyword, priority, dueFrom, dueTo, sort));
 	}
 
+	@GetMapping("/api/cards/{id}")
+	public CardResponse getCard(@PathVariable Long id) {
+		return cardService.findById(id);
+	}
+
 	@PostMapping("/api/cards")
 	@ResponseStatus(HttpStatus.CREATED)
 	public CardResponse createCard(@RequestBody CardCreateRequest request) {
 		return cardService.create(request);
 	}
 
-	@GetMapping("/api/cards/{id}")
-	public CardResponse getCard(@PathVariable Long id) {
-		return cardService.findById(id);
+	@PutMapping("/api/cards/{id}")
+	public CardResponse updateCard(@PathVariable Long id, @RequestBody CardUpdateRequest request) {
+		return cardService.update(id, request);
 	}
 }
