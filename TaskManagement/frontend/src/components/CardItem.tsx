@@ -2,9 +2,10 @@ import type { CardResponse } from '../types';
 
 interface CardItemProps {
   card: CardResponse;
+  onEdit?: (card: CardResponse) => void;
 }
 
-export const CardItem = ({ card }: CardItemProps) => {
+export const CardItem = ({ card, onEdit }: CardItemProps) => {
   const priorityBadgeColor = {
     high: 'bg-red-500',
     medium: 'bg-yellow-500',
@@ -26,7 +27,10 @@ export const CardItem = ({ card }: CardItemProps) => {
   };
 
   return (
-    <div className="p-3 rounded bg-white border border-gray-200 shadow-sm">
+    <div
+      onClick={() => onEdit?.(card)}
+      className="p-3 rounded bg-white border border-gray-200 shadow-sm cursor-pointer hover:shadow-md transition"
+    >
       <h4 className="font-semibold text-sm mb-2">{card.title}</h4>
       <div className="flex items-center gap-2 text-xs">
         <span className={`${priorityBadgeColor[card.priority]} text-white px-2 py-1 rounded font-medium`}>

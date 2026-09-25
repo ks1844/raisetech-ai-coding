@@ -88,4 +88,20 @@ public class Card {
 	public LocalDateTime getUpdatedAt() {
 		return updatedAt;
 	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public void setPriority(String priority) {
+		this.priority = priority;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setDueDate(LocalDate dueDate) {
+		this.dueDate = dueDate;
+	}
 }
