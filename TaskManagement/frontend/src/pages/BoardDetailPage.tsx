@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { BoardDetailResponse, ColumnWithCards, SearchCardsParams, CardCreateRequest, CardResponse, CardUpdateRequest } from '../types';
-import { fetchBoardDetail, searchCards, createCard, updateCard } from '../api/client';
+import { fetchBoardDetail, searchCards, createCard, updateCard, deleteCard } from '../api/client';
 import { SearchBar } from '../components/SearchBar';
 import { CardItem } from '../components/CardItem';
 import { CardEditModal } from '../components/CardEditModal';
@@ -127,6 +127,18 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
     }
   };
 
+  const handleDeleteCard = async (cardId: number) => {
+    try {
+      await deleteCard(cardId);
+      // ボード詳細を再取得して画面を更新
+      const data = await fetchBoardDetail(boardId);
+      setBoard(data);
+      setDisplayColumns(data.columns);
+    } catch {
+      setError('カード削除に失敗しました');
+    }
+  };
+
   if (loading) return <div className="p-4">読み込み中...</div>;
   if (error) return <div className="p-4 text-red-600">{error}</div>;
   if (!board) return <div className="p-4">ボードが見つかりません</div>;
@@ -170,7 +182,12 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
                   <p className="text-gray-500 text-sm">カードはありません</p>
                 ) : (
                   column.cards.map((card) => (
-                    <CardItem key={card.id} card={card} onEdit={handleOpenEditModal} />
+                    <CardItem
+                      key={card.id}
+                      card={card}
+                      onEdit={handleOpenEditModal}
+                      onDelete={handleDeleteCard}
+                    />
                   ))
                 )}
               </div>

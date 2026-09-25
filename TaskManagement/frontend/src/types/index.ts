@@ -50,10 +50,3 @@ export interface CardCreateRequest {
   description?: string;
   dueDate?: string | null;
 }
-
-export interface CardUpdateRequest {
-  title?: string;
-  priority?: 'high' | 'medium' | 'low';
-  description?: string;
-  dueDate?: string | null;
-}

@@ -49,3 +49,10 @@ export const updateCard = async (id: number, data: CardUpdateRequest): Promise<C
   if (!response.ok) throw new Error('Failed to update card');
   return response.json();
 };
+
+export const deleteCard = async (id: number): Promise<void> => {
+  const response = await fetch(`${API_BASE_URL}/cards/${id}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) throw new Error('Failed to delete card');
+};

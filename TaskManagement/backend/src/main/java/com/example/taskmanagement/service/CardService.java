@@ -124,4 +124,12 @@ public class CardService {
 		Card updated = cardRepository.save(card);
 		return CardResponse.from(updated);
 	}
+
+	@Transactional(readOnly = false)
+	public void delete(Long id) {
+		Card card = cardRepository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "カードが見つかりません: id=" + id));
+
+		cardRepository.delete(card);
+	}
 }
