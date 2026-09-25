@@ -1,6 +1,8 @@
 package com.example.taskmanagement.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,11 +33,25 @@ public class Card {
 	@Column(nullable = false)
 	private Integer position;
 
+	@CreationTimestamp
 	@Column(name = "created_at", nullable = false)
 	private LocalDateTime createdAt;
 
+	@UpdateTimestamp
 	@Column(name = "updated_at", nullable = false)
 	private LocalDateTime updatedAt;
+
+	public Card() {
+	}
+
+	public Card(Long columnId, String title, String priority, String description, LocalDate dueDate, Integer position) {
+		this.columnId = columnId;
+		this.title = title;
+		this.priority = priority;
+		this.description = description;
+		this.dueDate = dueDate;
+		this.position = position;
+	}
 
 	public Long getId() {
 		return id;
@@ -71,5 +87,21 @@ public class Card {
 
 	public LocalDateTime getUpdatedAt() {
 		return updatedAt;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public void setPriority(String priority) {
+		this.priority = priority;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setDueDate(LocalDate dueDate) {
+		this.dueDate = dueDate;
 	}
 }
