@@ -33,6 +33,7 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
     dueDate: undefined,
   });
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [sortOrder, setSortOrder] = useState<'position' | 'priority' | 'dueDate'>('position');
 
   useEffect(() => {
     const loadBoard = async () => {
@@ -54,7 +55,8 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
     if (!board) return;
 
     try {
-      const searchResults = await searchCards(params);
+      const searchParams = { ...params, sort: sortOrder };
+      const searchResults = await searchCards(searchParams);
 
       // カラムごとにカードをグループ化
       const updatedColumns = board.columns.map((column) => ({
@@ -181,19 +183,34 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
         </div>
 
         <div className="p-6">
-          <div className="mb-4 flex gap-2">
-            <button
-              onClick={() => setShowSearchModal(true)}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-medium transition"
-            >
-              🔍 検索
-            </button>
-            <button
-              onClick={handleReset}
-              className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded font-medium transition"
-            >
-              検索をリセット
-            </button>
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <div></div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <label className="text-sm font-medium">並び順:</label>
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value as 'position' | 'priority' | 'dueDate')}
+                  className="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="position">位置順</option>
+                  <option value="priority">優先度順</option>
+                  <option value="dueDate">期限日順</option>
+                </select>
+              </div>
+              <button
+                onClick={handleReset}
+                className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded font-medium transition"
+              >
+                検索をリセット
+              </button>
+              <button
+                onClick={() => setShowSearchModal(true)}
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-medium transition"
+              >
+                🔍 検索
+              </button>
+            </div>
           </div>
 
           <div className="flex overflow-x-auto gap-4 pb-4">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { SearchCardsParams } from '../types';
 
 interface SearchModalProps {
@@ -13,7 +13,6 @@ export const SearchModal = ({ isOpen, onClose, onSearch, onReset }: SearchModalP
   const [priority, setPriority] = useState<'high' | 'medium' | 'low' | ''>('');
   const [dueFrom, setDueFrom] = useState('');
   const [dueTo, setDueTo] = useState('');
-  const [sort, setSort] = useState<'position' | 'priority' | 'dueDate'>('position');
 
   const handleSearch = () => {
     const params: SearchCardsParams = {};
@@ -21,7 +20,6 @@ export const SearchModal = ({ isOpen, onClose, onSearch, onReset }: SearchModalP
     if (priority) params.priority = priority as 'high' | 'medium' | 'low';
     if (dueFrom) params.dueFrom = dueFrom;
     if (dueTo) params.dueTo = dueTo;
-    params.sort = sort;
 
     onSearch(params);
     onClose();
@@ -32,7 +30,6 @@ export const SearchModal = ({ isOpen, onClose, onSearch, onReset }: SearchModalP
     setPriority('');
     setDueFrom('');
     setDueTo('');
-    setSort('position');
     onReset();
     onClose();
   };
@@ -88,19 +85,6 @@ export const SearchModal = ({ isOpen, onClose, onSearch, onReset }: SearchModalP
               onChange={(e) => setDueTo(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">並び順</label>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as 'position' | 'priority' | 'dueDate')}
-              className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="position">位置順</option>
-              <option value="priority">優先度順</option>
-              <option value="dueDate">期限日順</option>
-            </select>
           </div>
         </div>
 
