@@ -146,49 +146,27 @@ public class CardService {
 			return CardResponse.from(card);
 		}
 
+		card.setColumnId(request.columnId());
+		card.setPosition(request.position());
+		cardRepository.save(card);
+
+		normalizeColumnPositions(request.columnId());
 		if (!oldColumnId.equals(request.columnId())) {
-			cardRepository.findAll((root, query, cb) -> cb.and(
-					cb.equal(root.get("columnId"), oldColumnId),
-					cb.greaterThan(root.get("position"), oldPosition)
-			)).forEach(c -> {
-				c.setPosition(c.getPosition() - 1);
-				cardRepository.save(c);
-			});
-
-			card.setColumnId(request.columnId());
-			card.setPosition(request.position());
-
-			cardRepository.findAll((root, query, cb) -> cb.and(
-					cb.equal(root.get("columnId"), request.columnId()),
-					cb.greaterThanOrEqualTo(root.get("position"), request.position())
-			)).forEach(c -> {
-				c.setPosition(c.getPosition() + 1);
-				cardRepository.save(c);
-			});
-		} else {
-			if (oldPosition < request.position()) {
-				cardRepository.findAll((root, query, cb) -> cb.and(
-						cb.equal(root.get("columnId"), oldColumnId),
-						cb.greaterThan(root.get("position"), oldPosition),
-						cb.lessThanOrEqualTo(root.get("position"), request.position())
-				)).forEach(c -> {
-					c.setPosition(c.getPosition() - 1);
-					cardRepository.save(c);
-				});
-			} else {
-				cardRepository.findAll((root, query, cb) -> cb.and(
-						cb.equal(root.get("columnId"), oldColumnId),
-						cb.greaterThanOrEqualTo(root.get("position"), request.position()),
-						cb.lessThan(root.get("position"), oldPosition)
-				)).forEach(c -> {
-					c.setPosition(c.getPosition() + 1);
-					cardRepository.save(c);
-				});
-			}
-			card.setPosition(request.position());
+			normalizeColumnPositions(oldColumnId);
 		}
 
-		Card updated = cardRepository.save(card);
+		Card updated = cardRepository.findById(id).orElseThrow();
 		return CardResponse.from(updated);
+	}
+
+	private void normalizeColumnPositions(Long columnId) {
+		List<Card> cards = cardRepository.findAll((root, query, cb) -> {
+			query.orderBy(cb.asc(root.get("position")));
+			return cb.equal(root.get("columnId"), columnId);
+		});
+		for (int i = 0; i < cards.size(); i++) {
+			cards.get(i).setPosition(i);
+			cardRepository.save(cards.get(i));
+		}
 	}
 }

@@ -41,7 +41,7 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
           <label className="block text-sm font-medium mb-1">優先度</label>
           <select
             value={priority}
-            onChange={(e) => setPriority(e.target.value as any)}
+            onChange={(e) => setPriority(e.target.value as 'high' | 'medium' | 'low' | '')}
             className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
           >
             <option value="">すべて</option>
@@ -72,7 +72,7 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
           <label className="block text-sm font-medium mb-1">並び順</label>
           <select
             value={sort}
-            onChange={(e) => setSort(e.target.value as any)}
+            onChange={(e) => setSort(e.target.value as 'position' | 'priority' | 'dueDate' | '')}
             className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
           >
             <option value="">デフォルト</option>
