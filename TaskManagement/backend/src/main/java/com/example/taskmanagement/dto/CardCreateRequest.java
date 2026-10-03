@@ -7,7 +7,8 @@ public record CardCreateRequest(
 	String title,
 	String priority,
 	String description,
-	LocalDate dueDate
+	LocalDate dueDate,
+	Integer position
 ) {
 	public CardCreateRequest {
 		if (columnId == null) {

@@ -23,6 +23,7 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
     priority: 'medium',
     description: '',
     dueDate: null,
+    position: undefined,
   });
   const [editingCard, setEditingCard] = useState<CardResponse | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -81,7 +82,9 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
   };
 
   const handleOpenCreateModal = (columnId: number) => {
-    setFormData({ columnId, title: '', priority: 'medium', description: '', dueDate: null });
+    const column = board?.columns.find((c) => c.id === columnId);
+    const defaultPosition = (column?.cards.length ?? 0) + 1;
+    setFormData({ columnId, title: '', priority: 'medium', description: '', dueDate: null, position: defaultPosition });
     setShowCreateModal(true);
   };
 
@@ -319,6 +322,20 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
                   className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+              {sortOrder === 'position' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">位置</label>
+                  <select
+                    value={formData.position || ''}
+                    onChange={(e) => setFormData({ ...formData, position: e.target.value ? parseInt(e.target.value, 10) : undefined })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    {Array.from({ length: (displayColumns.find((c) => c.id === formData.columnId)?.cards.length ?? 0) + 1 }, (_, i) => i + 1).map((pos) => (
+                      <option key={pos} value={pos}>{pos}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
             <div className="flex gap-3 mt-6">
               <button
