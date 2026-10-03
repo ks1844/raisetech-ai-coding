@@ -190,7 +190,21 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
                 <label className="text-sm font-medium">並び順:</label>
                 <select
                   value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value as 'position' | 'priority' | 'dueDate')}
+                  onChange={async (e) => {
+                    const newSort = e.target.value as 'position' | 'priority' | 'dueDate';
+                    setSortOrder(newSort);
+                    if (!board) return;
+                    try {
+                      const searchResults = await searchCards({ sort: newSort });
+                      const updatedColumns = board.columns.map((column) => ({
+                        ...column,
+                        cards: searchResults.filter((card) => card.columnId === column.id),
+                      }));
+                      setDisplayColumns(updatedColumns);
+                    } catch {
+                      setError('並び順の変更に失敗しました');
+                    }
+                  }}
                   className="px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="position">位置順</option>
