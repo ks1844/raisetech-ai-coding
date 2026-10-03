@@ -49,6 +49,7 @@ export interface CardCreateRequest {
   priority?: 'high' | 'medium' | 'low';
   description?: string;
   dueDate?: string | null;
+  position?: number;
 }
 
 export interface CardUpdateRequest {

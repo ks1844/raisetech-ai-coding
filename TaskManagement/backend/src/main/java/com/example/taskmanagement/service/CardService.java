@@ -84,9 +84,14 @@ public class CardService {
 					"priority は high / medium / low のいずれかを指定してください");
 		}
 
-		Integer nextPosition = cardRepository.findMaxPositionByColumnId(request.columnId())
-				.map(max -> max + 1)
-				.orElse(1);
+		Integer position;
+		if (request.position() != null && request.position() > 0) {
+			position = request.position();
+		} else {
+			position = cardRepository.findMaxPositionByColumnId(request.columnId())
+					.map(max -> max + 1)
+					.orElse(1);
+		}
 
 		Card card = new Card(
 				request.columnId(),
@@ -94,11 +99,13 @@ public class CardService {
 				request.resolvePriority(),
 				request.resolveDescription(),
 				request.dueDate(),
-				nextPosition
+				position
 		);
 
 		Card saved = cardRepository.save(card);
-		return CardResponse.from(saved);
+		normalizeColumnPositions(request.columnId());
+		Card updated = cardRepository.findById(saved.getId()).orElseThrow();
+		return CardResponse.from(updated);
 	}
 
 	@Transactional(readOnly = false)
