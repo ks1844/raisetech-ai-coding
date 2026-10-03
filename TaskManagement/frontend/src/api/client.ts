@@ -56,3 +56,13 @@ export const deleteCard = async (id: number): Promise<void> => {
   });
   if (!response.ok) throw new Error('Failed to delete card');
 };
+
+export const moveCard = async (id: number, columnId: number, position: number): Promise<CardResponse> => {
+  const response = await fetch(`${API_BASE_URL}/cards/${id}/reposition`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ columnId, position }),
+  });
+  if (!response.ok) throw new Error('Failed to move card');
+  return response.json();
+};

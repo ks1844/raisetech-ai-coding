@@ -4,6 +4,7 @@ import com.example.taskmanagement.dto.CardCreateRequest;
 import com.example.taskmanagement.dto.CardResponse;
 import com.example.taskmanagement.dto.CardSearchCondition;
 import com.example.taskmanagement.dto.CardUpdateRequest;
+import com.example.taskmanagement.dto.CardMoveRequest;
 import com.example.taskmanagement.service.CardService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -52,5 +53,10 @@ public class CardController {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteCard(@PathVariable Long id) {
 		cardService.delete(id);
+	}
+
+	@PostMapping("/api/cards/{id}/reposition")
+	public CardResponse repositionCard(@PathVariable Long id, @RequestBody CardMoveRequest request) {
+		return cardService.move(id, request);
 	}
 }

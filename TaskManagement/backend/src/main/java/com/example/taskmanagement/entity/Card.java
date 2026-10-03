@@ -104,4 +104,12 @@ public class Card {
 	public void setDueDate(LocalDate dueDate) {
 		this.dueDate = dueDate;
 	}
+
+	public void setColumnId(Long columnId) {
+		this.columnId = columnId;
+	}
+
+	public void setPosition(Integer position) {
+		this.position = position;
+	}
 }
