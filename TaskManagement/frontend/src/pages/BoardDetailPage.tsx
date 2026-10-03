@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { BoardDetailResponse, ColumnWithCards, SearchCardsParams, CardCreateRequest, CardResponse, CardUpdateRequest } from '../types';
 import { fetchBoardDetail, searchCards, createCard, updateCard, deleteCard, moveCard } from '../api/client';
-import { SearchBar } from '../components/SearchBar';
+import { SearchModal } from '../components/SearchModal';
 import { CardItem } from '../components/CardItem';
 import { CardEditModal } from '../components/CardEditModal';
 import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd';
@@ -32,6 +32,7 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
     description: undefined,
     dueDate: undefined,
   });
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
   useEffect(() => {
     const loadBoard = async () => {
@@ -180,11 +181,16 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
         </div>
 
         <div className="p-6">
-          <div className="mb-4 bg-white rounded p-4 shadow-sm">
-            <SearchBar onSearch={handleSearch} />
+          <div className="mb-4 flex gap-2">
+            <button
+              onClick={() => setShowSearchModal(true)}
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded font-medium transition"
+            >
+              🔍 検索
+            </button>
             <button
               onClick={handleReset}
-              className="mt-3 px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm"
+              className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded font-medium transition"
             >
               検索をリセット
             </button>
@@ -311,6 +317,13 @@ export const BoardDetailPage = ({ boardId, onBack }: BoardDetailPageProps) => {
             onCancel={() => setShowEditModal(false)}
           />
         )}
+
+        <SearchModal
+          isOpen={showSearchModal}
+          onClose={() => setShowSearchModal(false)}
+          onSearch={handleSearch}
+          onReset={handleReset}
+        />
       </div>
     </DragDropContext>
   );
