@@ -7,8 +7,8 @@
 | 項目 | 内容 |
 |------|------|
 | プロジェクト名 | Trello風タスク管理アプリ |
-| 目的 | RaiseTech AIコーディングコースの学習成果物として、フロントエンド開発の基礎技術を習得する |
-| 学習目標 | Next.js / TypeScript / Tailwind CSS を用いたSPAの設計・実装を実践する |
+| 目的 | RaiseTech AIコーディングコースの学習成果物として、フロントエンド・バックエンド開発の実践技術を習得する |
+| 学習目標 | Vite + React / Spring Boot / PostgreSQL / TypeScript / Tailwind CSS を用いた、フルスタック Web アプリケーション開発を実践する |
 | 対象ユーザー | 自分一人（シングルユーザー） |
 | 認証 | 不要 |
 
