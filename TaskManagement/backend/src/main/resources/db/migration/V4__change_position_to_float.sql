@@ -1,0 +1,2 @@
+ALTER TABLE cards
+ALTER COLUMN position TYPE FLOAT USING position::FLOAT;

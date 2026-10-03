@@ -31,7 +31,7 @@ public class Card {
 	private LocalDate dueDate;
 
 	@Column(nullable = false)
-	private Integer position;
+	private Float position;
 
 	@CreationTimestamp
 	@Column(name = "created_at", nullable = false)
@@ -44,7 +44,7 @@ public class Card {
 	public Card() {
 	}
 
-	public Card(Long columnId, String title, String priority, String description, LocalDate dueDate, Integer position) {
+	public Card(Long columnId, String title, String priority, String description, LocalDate dueDate, Float position) {
 		this.columnId = columnId;
 		this.title = title;
 		this.priority = priority;
@@ -77,7 +77,7 @@ public class Card {
 		return dueDate;
 	}
 
-	public Integer getPosition() {
+	public Float getPosition() {
 		return position;
 	}
 
@@ -109,7 +109,7 @@ public class Card {
 		this.columnId = columnId;
 	}
 
-	public void setPosition(Integer position) {
+	public void setPosition(Float position) {
 		this.position = position;
 	}
 }

@@ -84,14 +84,7 @@ public class CardService {
 					"priority は high / medium / low のいずれかを指定してください");
 		}
 
-		Integer position;
-		if (request.position() != null && request.position() > 0) {
-			position = request.position();
-		} else {
-			position = cardRepository.findMaxPositionByColumnId(request.columnId())
-					.map(max -> max + 1)
-					.orElse(1);
-		}
+		Float position = calculatePositionForCreate(request.columnId(), request.position());
 
 		Card card = new Card(
 				request.columnId(),
@@ -103,9 +96,43 @@ public class CardService {
 		);
 
 		Card saved = cardRepository.save(card);
-		normalizeColumnPositions(request.columnId());
-		Card updated = cardRepository.findById(saved.getId()).orElseThrow();
-		return CardResponse.from(updated);
+		return CardResponse.from(saved);
+	}
+
+	private Float calculatePositionForCreate(Long columnId, Integer dropIndex) {
+		List<Card> cards = cardRepository.findAll((root, query, cb) -> {
+			query.orderBy(cb.asc(root.get("position")));
+			return cb.equal(root.get("columnId"), columnId);
+		});
+
+		if (dropIndex == null || dropIndex <= 0) {
+			// 最後に追加
+			if (cards.isEmpty()) {
+				return 1000f;
+			}
+			return cards.get(cards.size() - 1).getPosition() + 1000f;
+		}
+
+		if (dropIndex == 1) {
+			// 最初に追加
+			if (cards.isEmpty()) {
+				return 1000f;
+			}
+			return cards.get(0).getPosition() / 2f;
+		}
+
+		if (dropIndex > cards.size()) {
+			// 最後に追加
+			if (cards.isEmpty()) {
+				return 1000f;
+			}
+			return cards.get(cards.size() - 1).getPosition() + 1000f;
+		}
+
+		// 中間に追加
+		Card prevCard = cards.get(dropIndex - 2);
+		Card nextCard = cards.get(dropIndex - 1);
+		return (prevCard.getPosition() + nextCard.getPosition()) / 2f;
 	}
 
 	@Transactional(readOnly = false)
@@ -147,33 +174,43 @@ public class CardService {
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "カードが見つかりません: id=" + id));
 
 		Long oldColumnId = card.getColumnId();
-		int oldPosition = card.getPosition();
-
-		if (oldColumnId.equals(request.columnId()) && oldPosition == request.position()) {
-			return CardResponse.from(card);
-		}
 
 		card.setColumnId(request.columnId());
-		card.setPosition(request.position());
+		Float newPosition = calculateNewPosition(request.columnId(), request.position(), id);
+		card.setPosition(newPosition);
 		cardRepository.save(card);
-
-		normalizeColumnPositions(request.columnId());
-		if (!oldColumnId.equals(request.columnId())) {
-			normalizeColumnPositions(oldColumnId);
-		}
 
 		Card updated = cardRepository.findById(id).orElseThrow();
 		return CardResponse.from(updated);
 	}
 
-	private void normalizeColumnPositions(Long columnId) {
+	private Float calculateNewPosition(Long columnId, Integer dropIndex, Long cardId) {
 		List<Card> cards = cardRepository.findAll((root, query, cb) -> {
 			query.orderBy(cb.asc(root.get("position")));
 			return cb.equal(root.get("columnId"), columnId);
 		});
-		for (int i = 0; i < cards.size(); i++) {
-			cards.get(i).setPosition(i);
-			cardRepository.save(cards.get(i));
+
+		cards = cards.stream()
+				.filter(c -> !c.getId().equals(cardId))
+				.toList();
+
+		if (dropIndex <= 1) {
+			// 最初に移動
+			if (cards.isEmpty()) {
+				return 1000f;
+			}
+			return cards.get(0).getPosition() / 2f;
+		} else if (dropIndex > cards.size()) {
+			// 最後に移動
+			if (cards.isEmpty()) {
+				return 1000f;
+			}
+			return cards.get(cards.size() - 1).getPosition() + 1000f;
+		} else {
+			// 中間に移動
+			Card prevCard = cards.get(dropIndex - 2);
+			Card nextCard = cards.get(dropIndex - 1);
+			return (prevCard.getPosition() + nextCard.getPosition()) / 2f;
 		}
 	}
 }
