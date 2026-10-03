@@ -1,7 +1,10 @@
 package com.example.taskmanagement.service;
 
+import com.example.taskmanagement.dto.CardCreateRequest;
 import com.example.taskmanagement.dto.CardResponse;
+import com.example.taskmanagement.dto.CardUpdateRequest;
 import com.example.taskmanagement.dto.CardSearchCondition;
+import com.example.taskmanagement.dto.CardMoveRequest;
 import com.example.taskmanagement.entity.Card;
 import com.example.taskmanagement.repository.CardRepository;
 import org.springframework.data.jpa.domain.Specification;
@@ -72,5 +75,120 @@ public class CardService {
 		return cardRepository.findById(id)
 				.map(CardResponse::from)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "カードが見つかりません: id=" + id));
+	}
+
+	@Transactional(readOnly = false)
+	public CardResponse create(CardCreateRequest request) {
+		if (request.priority() != null && !PRIORITY_ORDER.containsKey(request.priority())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"priority は high / medium / low のいずれかを指定してください");
+		}
+
+		Integer nextPosition = cardRepository.findMaxPositionByColumnId(request.columnId())
+				.map(max -> max + 1)
+				.orElse(1);
+
+		Card card = new Card(
+				request.columnId(),
+				request.title(),
+				request.resolvePriority(),
+				request.resolveDescription(),
+				request.dueDate(),
+				nextPosition
+		);
+
+		Card saved = cardRepository.save(card);
+		return CardResponse.from(saved);
+	}
+
+	@Transactional(readOnly = false)
+	public CardResponse update(Long id, CardUpdateRequest request) {
+		Card card = cardRepository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "カードが見つかりません: id=" + id));
+
+		if (request.priority() != null && !PRIORITY_ORDER.containsKey(request.priority())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+					"priority は high / medium / low のいずれかを指定してください");
+		}
+
+		if (request.title() != null) {
+			card.setTitle(request.title());
+		}
+		if (request.priority() != null) {
+			card.setPriority(request.priority());
+		}
+		if (request.description() != null) {
+			card.setDescription(request.description());
+		}
+		card.setDueDate(request.dueDate());
+
+		Card updated = cardRepository.save(card);
+		return CardResponse.from(updated);
+	}
+
+	@Transactional(readOnly = false)
+	public void delete(Long id) {
+		Card card = cardRepository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "カードが見つかりません: id=" + id));
+
+		cardRepository.delete(card);
+	}
+
+	@Transactional(readOnly = false)
+	public CardResponse move(Long id, CardMoveRequest request) {
+		Card card = cardRepository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "カードが見つかりません: id=" + id));
+
+		Long oldColumnId = card.getColumnId();
+		int oldPosition = card.getPosition();
+
+		if (oldColumnId.equals(request.columnId()) && oldPosition == request.position()) {
+			return CardResponse.from(card);
+		}
+
+		if (!oldColumnId.equals(request.columnId())) {
+			cardRepository.findAll((root, query, cb) -> cb.and(
+					cb.equal(root.get("columnId"), oldColumnId),
+					cb.greaterThan(root.get("position"), oldPosition)
+			)).forEach(c -> {
+				c.setPosition(c.getPosition() - 1);
+				cardRepository.save(c);
+			});
+
+			card.setColumnId(request.columnId());
+			card.setPosition(request.position());
+
+			cardRepository.findAll((root, query, cb) -> cb.and(
+					cb.equal(root.get("columnId"), request.columnId()),
+					cb.greaterThanOrEqualTo(root.get("position"), request.position())
+			)).forEach(c -> {
+				c.setPosition(c.getPosition() + 1);
+				cardRepository.save(c);
+			});
+		} else {
+			if (oldPosition < request.position()) {
+				cardRepository.findAll((root, query, cb) -> cb.and(
+						cb.equal(root.get("columnId"), oldColumnId),
+						cb.greaterThan(root.get("position"), oldPosition),
+						cb.lessThanOrEqualTo(root.get("position"), request.position())
+				)).forEach(c -> {
+					c.setPosition(c.getPosition() - 1);
+					cardRepository.save(c);
+				});
+			} else {
+				cardRepository.findAll((root, query, cb) -> cb.and(
+						cb.equal(root.get("columnId"), oldColumnId),
+						cb.greaterThanOrEqualTo(root.get("position"), request.position()),
+						cb.lessThan(root.get("position"), oldPosition)
+				)).forEach(c -> {
+					c.setPosition(c.getPosition() + 1);
+					cardRepository.save(c);
+				});
+			}
+			card.setPosition(request.position());
+		}
+
+		Card updated = cardRepository.save(card);
+		return CardResponse.from(updated);
 	}
 }
