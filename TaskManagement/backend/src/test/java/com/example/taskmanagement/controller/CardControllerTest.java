@@ -1,12 +1,16 @@
 package com.example.taskmanagement.controller;
 
 import com.example.taskmanagement.TestcontainersConfiguration;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDate;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -14,6 +18,7 @@ import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,6 +29,8 @@ class CardControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	@Test
 	void 条件なしで全カードを取得できる() throws Exception {
@@ -109,5 +116,98 @@ class CardControllerTest {
 	@Test
 	void 存在しないカードは404になる() throws Exception {
 		mockMvc.perform(get("/api/cards/9999")).andExpect(status().isNotFound());
+	}
+
+	@Test
+	void カードを登録できる() throws Exception {
+		String requestJson = objectMapper.writeValueAsString(
+				new CardCreateRequestPayload(1L, "新しいタスク", "high", "説明", "2026-10-01"));
+
+		mockMvc.perform(post("/api/cards")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.columnId").value(1))
+				.andExpect(jsonPath("$.title").value("新しいタスク"))
+				.andExpect(jsonPath("$.priority").value("high"))
+				.andExpect(jsonPath("$.description").value("説明"))
+				.andExpect(jsonPath("$.dueDate").value("2026-10-01"))
+				.andExpect(jsonPath("$.id").isNumber())
+				.andExpect(jsonPath("$.position").isNumber());
+	}
+
+	@Test
+	void priorityのデフォルト値はmediumになる() throws Exception {
+		String requestJson = objectMapper.writeValueAsString(
+				new CardCreateRequestPayload(1L, "新しいタスク", null, null, null));
+
+		mockMvc.perform(post("/api/cards")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.priority").value("medium"))
+				.andExpect(jsonPath("$.description").value(""));
+	}
+
+	@Test
+	void カードの登録でpositionが自動決定される() throws Exception {
+		String requestJson1 = objectMapper.writeValueAsString(
+				new CardCreateRequestPayload(2L, "タスク1", null, null, null));
+		String requestJson2 = objectMapper.writeValueAsString(
+				new CardCreateRequestPayload(2L, "タスク2", null, null, null));
+
+		mockMvc.perform(post("/api/cards")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson1))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.position").value(2));
+
+		mockMvc.perform(post("/api/cards")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson2))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.position").value(3));
+	}
+
+	@Test
+	void 不正なpriorityは400になる() throws Exception {
+		String requestJson = objectMapper.writeValueAsString(
+				new CardCreateRequestPayload(1L, "新しいタスク", "urgent", null, null));
+
+		mockMvc.perform(post("/api/cards")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void titleが空の場合は400になる() throws Exception {
+		String requestJson = objectMapper.writeValueAsString(
+				new CardCreateRequestPayload(1L, "", null, null, null));
+
+		mockMvc.perform(post("/api/cards")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson))
+				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void columnIdが必須() throws Exception {
+		String requestJson = objectMapper.writeValueAsString(
+				new CardCreateRequestPayload(null, "新しいタスク", null, null, null));
+
+		mockMvc.perform(post("/api/cards")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(requestJson))
+				.andExpect(status().isBadRequest());
+	}
+
+	record CardCreateRequestPayload(
+			Long columnId,
+			String title,
+			String priority,
+			String description,
+			String dueDate
+	) {
 	}
 }

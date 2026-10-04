@@ -11,7 +11,7 @@ public record CardResponse(
 		String priority,
 		String description,
 		LocalDate dueDate,
-		Integer position
+		Float position
 ) {
 	public static CardResponse from(Card card) {
 		return new CardResponse(
