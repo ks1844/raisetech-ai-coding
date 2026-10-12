@@ -10,7 +10,7 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
   const [priority, setPriority] = useState<'high' | 'medium' | 'low' | ''>('');
   const [dueFrom, setDueFrom] = useState('');
   const [dueTo, setDueTo] = useState('');
-  const [sort, setSort] = useState<'position' | 'priority' | 'dueDate' | ''>('');
+  const [sort, setSort] = useState<'position' | 'priority' | 'dueDate' | ''>('position');
 
   const handleSearch = () => {
     const params: SearchCardsParams = {};
@@ -21,6 +21,14 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
     if (sort) params.sort = sort as 'position' | 'priority' | 'dueDate';
 
     onSearch(params);
+  };
+
+  const handleReset = () => {
+    setKeyword('');
+    setPriority('');
+    setDueFrom('');
+    setDueTo('');
+    setSort('position');
   };
 
   return (
@@ -41,7 +49,7 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
           <label className="block text-sm font-medium mb-1">優先度</label>
           <select
             value={priority}
-            onChange={(e) => setPriority(e.target.value as any)}
+            onChange={(e) => setPriority(e.target.value as 'high' | 'medium' | 'low' | '')}
             className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
           >
             <option value="">すべて</option>
@@ -72,10 +80,9 @@ export const SearchBar = ({ onSearch }: SearchBarProps) => {
           <label className="block text-sm font-medium mb-1">並び順</label>
           <select
             value={sort}
-            onChange={(e) => setSort(e.target.value as any)}
+            onChange={(e) => setSort(e.target.value as 'position' | 'priority' | 'dueDate')}
             className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
           >
-            <option value="">デフォルト</option>
             <option value="position">位置順</option>
             <option value="priority">優先度順</option>
             <option value="dueDate">期限日順</option>

@@ -4,27 +4,7 @@
 
 ## 1. データ概要
 
-アプリのデータはすべて localStorage に JSON 形式で保存する。
-
-```
-localStorage
-└── "boards"  ←キー名
-    └── Board[]  ←ボードの配列
-        └── Board
-            ├── id
-            ├── title
-            └── columns: Column[]
-                └── Column
-                    ├── id
-                    ├── title
-                    └── cards: Card[]
-                        └── Card
-                            ├── id
-                            ├── title
-                            ├── priority
-                            ├── description
-                            └── dueDate
-```
+アプリのデータは PostgreSQL データベースに永続化される。Spring Boot バックエンドが REST API を介してフロントエンドとデータをやり取りする。
 
 ---
 
@@ -32,102 +12,123 @@ localStorage
 
 ### 2.1 Board（ボード）
 
-| フィールド名 | 型 | 必須 | 説明 |
-|------------|-----|------|------|
-| id | string | ○ | ボードを一意に識別するID（例：`board-1`） |
-| title | string | ○ | ボード名（例：「学習タスク」） |
-| columns | Column[] | ○ | このボードに属するカラムの配列（初期値は空配列） |
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | BIGINT | PK, AUTO_INCREMENT | ボードを一意に識別するID |
+| title | VARCHAR(255) | NOT NULL | ボード名（例：「学習タスク」） |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
+| updated_at | TIMESTAMP | NOT NULL | 更新日時 |
 
 ### 2.2 Column（カラム）
 
-| フィールド名 | 型 | 必須 | 説明 |
-|------------|-----|------|------|
-| id | string | ○ | カラムを一意に識別するID（例：`column-1`） |
-| title | string | ○ | カラム名（例：「ToDo」「進行中」「完了」） |
-| cards | Card[] | ○ | このカラムに属するカードの配列（初期値は空配列） |
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | BIGINT | PK, AUTO_INCREMENT | カラムを一意に識別するID |
+| board_id | BIGINT | NOT NULL, FK | 所属するボードのID |
+| title | VARCHAR(255) | NOT NULL | カラム名（例：「ToDo」「進行中」「完了」） |
+| position | INT | NOT NULL | 表示順序（昇順） |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
+| updated_at | TIMESTAMP | NOT NULL | 更新日時 |
 
 ### 2.3 Card（カード）
 
-| フィールド名 | 型 | 必須 | 説明 |
-|------------|-----|------|------|
-| id | string | ○ | カードを一意に識別するID（例：`card-1`） |
-| title | string | ○ | カードのタイトル（例：「Next.jsの勉強」） |
-| priority | string | ○ | 優先度。`"high"` / `"medium"` / `"low"` のいずれか。デフォルトは `"medium"` |
-| description | string | - | カードの説明・メモ。未入力の場合は空文字 `""` |
-| dueDate | string | - | 期限日。`YYYY-MM-DD` 形式（例：`"2026-06-30"`）。未設定の場合は `null` |
+| カラム名 | 型 | 制約 | 説明 |
+|---------|-----|------|------|
+| id | BIGINT | PK, AUTO_INCREMENT | カードを一意に識別するID |
+| column_id | BIGINT | NOT NULL, FK | 所属するカラムのID |
+| title | VARCHAR(100) | NOT NULL | カードのタイトル |
+| priority | VARCHAR(10) | NOT NULL | 優先度。`"high"` / `"medium"` / `"low"` のいずれか。デフォルトは `"medium"` |
+| description | TEXT | NULL | カードの説明・メモ |
+| due_date | DATE | NULL | 期限日。`YYYY-MM-DD` 形式 |
+| position | FLOAT | NOT NULL | 表示順序（Float型で中間値計算をサポート） |
+| created_at | TIMESTAMP | NOT NULL | 作成日時 |
+| updated_at | TIMESTAMP | NOT NULL | 更新日時 |
 
 ---
 
-## 3. 保存データの例
-
-```json
-[
-  {
-    "id": "board-1",
-    "title": "学習タスク",
-    "columns": [
-      {
-        "id": "column-1",
-        "title": "ToDo",
-        "cards": [
-          {
-            "id": "card-1",
-            "title": "Next.jsの勉強",
-            "priority": "high",
-            "description": "App Routerの基礎から始める",
-            "dueDate": "2026-06-30"
-          }
-        ]
-      },
-      {
-        "id": "column-2",
-        "title": "進行中",
-        "cards": []
-      },
-      {
-        "id": "column-3",
-        "title": "完了",
-        "cards": []
-      }
-    ]
-  }
-]
-```
-
----
-
-## 4. ER図
-
-将来的なDB移行を見据えた論理データモデルを示す。現状はlocalStorageにJSONで保存しているが、RDBに移行する場合は以下の構造を基に設計する。
+## 3. ER図
 
 ```mermaid
 erDiagram
     Board {
-        string id PK
+        BIGINT id PK
         string title
+        timestamp created_at
+        timestamp updated_at
     }
     Column {
-        string id PK
+        BIGINT id PK
+        BIGINT board_id FK
         string title
-        int position
-        string board_id FK
+        INT position
+        timestamp created_at
+        timestamp updated_at
     }
     Card {
-        string id PK
+        BIGINT id PK
+        BIGINT column_id FK
         string title
         string priority
-        string description
+        text description
         date due_date
-        int position
-        string column_id FK
+        FLOAT position
+        timestamp created_at
+        timestamp updated_at
     }
 
     Board ||--o{ Column : "1対多"
     Column ||--o{ Card : "1対多"
 ```
 
-| フィールド | 補足 |
-|-----------|------|
-| position | カラム・カードの表示順を保持する数値。D&Dによる並び替えを永続化するために必要 |
-| board_id | ColumnがどのBoardに属するかを示す外部キー |
-| column_id | CardがどのColumnに属するかを示す外部キー |
+---
+
+## 4. 並び順（position）の実装
+
+### 4.1 position フィールドについて
+
+- **型**: Float（浮動小数点数）
+- **用途**: カード・カラムの表示順序を管理
+- **初期値**: カード追加時は、空のカラムなら 1000.0、既存カードがあれば最後のカードの position + 1000.0
+- **D&D時の計算**:
+  - **最初に移動**: 新しい position = nextCard.position / 2
+  - **中間に移動**: 新しい position = (prevCard.position + nextCard.position) / 2
+  - **最後に移動**: 新しい position = prevCard.position + 1000.0
+
+この方式により、各操作を 1 度のクエリで実現でき、スケーラブルな設計が実現される。
+
+---
+
+## 5. API レスポンス例
+
+### Board 詳細取得
+
+```json
+{
+  "id": 1,
+  "title": "学習タスク",
+  "columns": [
+    {
+      "id": 1,
+      "title": "ToDo",
+      "position": 1,
+      "cards": [
+        {
+          "id": 1,
+          "columnId": 1,
+          "title": "Reactの勉強",
+          "priority": "high",
+          "description": "基礎から実践まで",
+          "dueDate": "2026-06-30",
+          "position": 1000.0
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "進行中",
+      "position": 2,
+      "cards": []
+    }
+  ]
+}
+```

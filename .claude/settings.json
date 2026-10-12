@@ -1,5 +1,27 @@
 {
   "language": "japanese",
+  "permissions": {
+    "allow": [
+      "Bash(pkill*)",
+      "Bash(sleep*)",
+      "Bash(cd *)",
+      "Bash(./gradlew*)",
+      "Bash(npm*)",
+      "Bash(curl*)",
+      "Bash(tail*)",
+      "Bash(grep*)",
+      "Bash(echo*)",
+      "Bash(cat*)",
+      "Bash(ls*)",
+      "Bash(find*)",
+      "Bash(mv*)",
+      "Bash(rm -rf build*)",
+      "Bash(rm -rf node_modules*)"
+    ],
+    "ask": [
+      "Bash(rm*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
