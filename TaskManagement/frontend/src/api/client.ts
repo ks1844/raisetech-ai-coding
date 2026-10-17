@@ -1,6 +1,6 @@
 import type { BoardDetailResponse, BoardResponse, CardResponse, CardCreateRequest, CardUpdateRequest, SearchCardsParams } from '../types';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = '/api';
 
 export const fetchBoards = async (): Promise<BoardResponse[]> => {
   const response = await fetch(`${API_BASE_URL}/boards`);
