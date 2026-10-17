@@ -1,0 +1,3 @@
+# このファイルは Git に入ります。実際のバケット名は書かず、backend.hcl にコピーしてそちらに書く（backend.hcl は Git 管理外）
+# 例: taskmanagement-tfstate-<アカウントID>
+bucket = "taskmanagement-tfstate-123456789012"

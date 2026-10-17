@@ -1,0 +1,8 @@
+# このファイルは Git に入ります。実際の値は書かず、terraform.tfvars にコピーしてそちらに書く
+# （terraform.tfvars は Git 管理外）
+
+# 自分のIP/32（確認: curl https://checkip.amazonaws.com）。下はダミー値
+allowed_cidr = "203.0.113.10/32"
+
+# SSH公開鍵（cat ~/.ssh/<鍵名>.pub の内容）。下はダミー値
+ssh_public_key = "ssh-ed25519 AAAA... your-key-comment"
