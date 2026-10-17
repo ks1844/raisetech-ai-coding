@@ -19,7 +19,7 @@
 | 項目 | 採用技術 | バージョン（目安） |
 |------|---------|---------------|
 | フレームワーク | Spring Boot | 4.x |
-| 言語 | Java | 21+ |
+| 言語 | Java | 25（`build.gradle` の toolchain で指定） |
 | ビルドツール | Gradle | 9.x |
 | データベース | PostgreSQL | 17.x |
 | マイグレーション | Flyway | 11.x |

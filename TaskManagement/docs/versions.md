@@ -7,9 +7,9 @@
 ## バックエンド（Java / Spring Boot）
 
 ### 言語・ランタイム
-- **Java**: 21.0.5 LTS（推奨）
-  - Toolchain: Java 25 対応
-  - JVM: Oracle JDK 21以上推奨
+- **Java**: 25（`build.gradle` の toolchain で指定。ビルドと実行は Java 25）
+  - Gradle の実行用のJavaは 17 以上であれば可（手元は 21.0.5）。toolchain の JDK 25 は Gradle が自動で取得する
+  - 本番相当（EC2）の実行環境にも Java 25 が必要
   
 ### フレームワーク・ビルドツール
 - **Spring Boot**: 4.0.6
@@ -17,7 +17,7 @@
 - **Spring Dependency Management**: 1.1.7
 
 ### データベース・マイグレーション
-- **PostgreSQL**: 15系（Docker環境で実行）
+- **PostgreSQL**: 17系（ローカルは Docker の `postgres:17`、EC2 は `postgresql17-server`）
 - **Flyway**: Spring Boot Starter Flyway
   - flyway-database-postgresql: 依存
 
